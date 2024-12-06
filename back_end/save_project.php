@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("sssssssss", $creatorID, $name, $category, $startDate, $finishDate, $accessCode, $colorTheme, $daysLeft, $status);
 
     if ($stmt->execute()) {
-        echo json_encode(["message" => "Project created successfully!", "accessCode" => $accessCode]);
+        echo json_encode(["message" => "Project created successfully!", "accessCode" => $accessCode]);  
     } else {
         echo json_encode(["message" => "Error creating project", "error" => $stmt->error]);
     }

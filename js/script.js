@@ -280,7 +280,6 @@ document.addEventListener("DOMContentLoaded", function () {
             status: status
         };
 
-        // Corrected fetch request
         fetch('back_end/save_project.php', {
             method: 'POST',
             headers: {
@@ -294,6 +293,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert('Project created successfully!');
                 document.querySelector(".project-form").reset();
                 modalOverlay.style.display = "none";
+                fetchProjectStats();
+                fetchProjects();
             } else {
                 alert(data.message);
             }
@@ -333,20 +334,102 @@ document.addEventListener("DOMContentLoaded", function () {
         projDetails.style.position = "absolute";  
     }
 
-    // Add click event to each project card
     projectContainer.addEventListener("click", (event) => {
-        const menuIconClicked = event.target.closest(".menu-icon");
-        if (!menuIconClicked) { 
-            const clickedElement = event.target.closest(".project-cards");
-            if (clickedElement) {
-                showProjectDetails();
-            }
+        const archiveIconClicked = event.target.closest(".bx-archive-in"); 
+        
+        if (archiveIconClicked) {
+            return; 
+        }
+
+        const clickedElement = event.target.closest(".project-cards");
+        if (clickedElement) {
+            showProjectDetails();
         }
     });
 
-    // Add click event to the back button in proj-details
     backButton.addEventListener("click", hideProjectDetails);
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const projectContainer = document.getElementById("project-container");
+    const archiveContainer = document.getElementById("archive-container");
+    const projSection = document.querySelector(".proj");
+    const projDetails = document.querySelector(".proj-details");
+    const backButton = projDetails.querySelector(".bx-chevron-left");
+    const archiveCount = document.getElementById("archive-count");
+
+    // Function to show project details
+    function showProjectDetails() {
+        projSection.style.display = "none";
+        projDetails.style.display = "block";
+    }
+
+    // Function to hide project details
+    function hideProjectDetails() {
+        projSection.style.display = "block"; 
+        projDetails.style.display = "none";
+    }
+
+    // Function to update archive count
+    function updateArchiveCount() {
+        const archivedProjects = archiveContainer.querySelectorAll(".project-cards");
+        archiveCount.textContent = archivedProjects.length;
+    }
+
+    // Archive project and update status in the database
+    async function archiveProject(projectId) {
+        const userConfirmed = confirm("Are you sure you want to archive this project?");
+        if (!userConfirmed) return;
+
+        try {
+            const response = await fetch('back_end/archive_project.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ projectId: projectId })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Project archived successfully!');
+                fetchProjects(); // Refresh the projects after archiving
+                fetchProjectStats();
+            } else {
+                alert('Error archiving project: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error archiving project:', error);
+            alert('An error occurred while archiving the project.');
+        }
+    }
+
+    projectContainer.addEventListener("click", (event) => {
+        const archiveIconClicked = event.target.closest(".bx-archive-in");
+        
+        if (archiveIconClicked) {
+            const projectCard = event.target.closest(".project-cards");
+            const projectId = projectCard.dataset.projectId; // Get the project ID from the card data attribute
+            
+            archiveProject(projectId); // Archive the project
+            return; 
+        }
+
+        const clickedElement = event.target.closest(".project-cards");
+        if (clickedElement) {
+            showProjectDetails();
+        }
+    });
+
+    backButton.addEventListener("click", hideProjectDetails);
+
+    // Fetch and render projects initially
+    fetchProjects();
+});
+
+
+
 
 
 //TASKS & DOCS TOGGLE
@@ -355,34 +438,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const documentsTab = document.getElementById("documents-tab");
     const tasksSection = document.getElementById("tasks-section");
     const documentsSection = document.getElementById("documents-section");
-    const addUserButton = document.querySelector(".proj-add-user");
     const uploadButton = document.querySelector(".proj-upload-btn");
 
-    // Function to show the Tasks section, show addUser button, and hide the Upload button
     function showTasks() {
         tasksSection.style.display = "block";
         documentsSection.style.display = "none";
         tasksTab.classList.add("active-tab");
         documentsTab.classList.remove("active-tab");
-        addUserButton.style.display = "inline-flex"; // Show add user button
-        uploadButton.style.display = "none"; // Hide upload button in Tasks section
+        uploadButton.style.display = "none";
     }
 
-    // Function to show the Documents section, show Upload button, and hide the addUser button
     function showDocuments() {
         documentsSection.style.display = "block";
         tasksSection.style.display = "none";
         documentsTab.classList.add("active-tab");
         tasksTab.classList.remove("active-tab");
-        uploadButton.style.display = "inline-flex";  // Show upload button
-        addUserButton.style.display = "none";  // Hide add user button
+        uploadButton.style.display = "inline-flex";  
     }
 
-    // Event listeners for the tabs
-    tasksTab.addEventListener("click", showTasks);
-    documentsTab.addEventListener("click", showDocuments);
-
-    // Initial setup: show the Tasks section and addUser button by default, hide upload button
+    tasksTab.addEventListener("click", function() {
+        showTasks();
+    });
+    documentsTab.addEventListener("click", function() {
+        showDocuments();
+    });
     showTasks();
 });
 
@@ -457,36 +536,35 @@ document.addEventListener('click', (event) => {
 });
 
 
-//FILTER IN PROJECTS FUNCTIONALITY
-const filterButton = document.querySelector('.bx-filter');
-const projectContainer = document.querySelector('.projects-grids');
+document.addEventListener("DOMContentLoaded", function () {
+    const filterButton = document.querySelector('.bx-filter');
+    const projectContainer = document.querySelector('.projects-grids');
 
-filterButton.addEventListener('click', function () {
-    const projectCards = Array.from(projectContainer.children);
-
-    if (projectCards.length > 0) {
-        const sortedCards = projectCards.sort((a, b) => {
-            const titleA = a.querySelector('.p-title h3').textContent.trim().toLowerCase();
-            const titleB = b.querySelector('.p-title h3').textContent.trim().toLowerCase();
-
-            if (titleA < titleB) {
-                return -1; 
-            } else if (titleA > titleB) {
-                return 1; 
-            } else {
-                return 0; 
-            }
-        });
-
-        projectContainer.innerHTML = ''; 
-        for (let i = 0; i < sortedCards.length; i++) {
-            projectContainer.appendChild(sortedCards[i]); 
-        }
-    } else {
-        console.log('No projects to sort.');
+    if (!filterButton || !projectContainer) {
+        console.error('Filter button or project container not found.');
+        return;
     }
-});
 
+    filterButton.addEventListener('click', function () {
+        const projectCards = Array.from(projectContainer.children);
+
+        if (projectCards.length > 0) {
+            const sortedCards = projectCards.sort((a, b) => {
+                const titleA = a.querySelector('.p-title h3')?.textContent.trim().toLowerCase() || '';
+                const titleB = b.querySelector('.p-title h3')?.textContent.trim().toLowerCase() || '';
+
+                return titleA.localeCompare(titleB);
+            });
+
+            projectContainer.innerHTML = '';
+            sortedCards.forEach(card => {
+                projectContainer.appendChild(card);
+            });
+        } else {
+            console.log('No projects to sort.');
+        }
+    });
+});
 
 
 //SETTINGS UPLOAD PROFILE PIC
@@ -573,3 +651,109 @@ clearButton.addEventListener('click', function (event) {
 
     inputField.value = '';
 });
+
+//PLUS BUTTON FUNCTIONALITY
+const plusButton = document.getElementById('plusButton');
+const options = document.getElementById('plus-options');
+
+plusButton.addEventListener('click', function () {
+    if (options.classList.contains('hidden')) {
+        options.classList.remove('hidden'); 
+    } else {
+        options.classList.add('hidden');
+    }
+});
+
+//JOIN BUTTON FUNCTIONALITY
+document.addEventListener("DOMContentLoaded", () => {
+    const joinButton = document.querySelector(".join-option-btn");
+    const modal = document.getElementById("join-modal");
+    const modalContent = document.getElementById("j-modal");
+    const inputs = document.querySelectorAll(".code-inputs input");
+  
+    joinButton.addEventListener("click", () => {
+      modal.style.display = "flex"; 
+    });
+  
+    modal.addEventListener("click", (event) => {
+      if (!modalContent.contains(event.target)) {
+        closeModal();
+      }
+    });
+  
+    function closeModal() {
+      modal.style.display = "none"; 
+      inputs.forEach((input) => (input.value = "")); 
+    }
+
+    document.getElementById('join-project-btn').addEventListener('click', async () => {
+        const codeInputs = [
+            document.getElementById('code1').value,
+            document.getElementById('code2').value,
+            document.getElementById('code3').value,
+            document.getElementById('code4').value,
+            document.getElementById('code5').value,
+            document.getElementById('code6').value
+        ];
+        
+        const projectCode = codeInputs.join('');  
+    
+        if (projectCode.length === 6) { 
+            try {
+                const response = await fetch('back_end/join_project.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ projectCode })
+                });
+
+                const text = await response.text();
+                console.log('Raw response:', text);
+
+                const result = JSON.parse(text); 
+    
+                if (result.success) {
+                    alert('You have successfully joined the project!');
+                    document.getElementById('join-modal').style.display = 'none'; 
+                    fetchProjects(); 
+                } else {
+                    alert('Invalid code. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error joining project:', error);
+                alert('An error occurred. Please try again.');
+            }
+        } else {
+            alert('Please enter the full 6-digit project code.');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchProjectStats(); // Call fetchProjectStats after the DOM is loaded
+});
+
+async function fetchProjectStats() {
+    try {
+        // Make an API call to fetch the project stats
+        const response = await fetch('back_end/fetch_project_number.php');
+        const data = await response.json();
+
+        // Ensure the elements exist before attempting to set their textContent
+        const inProgressStat = document.querySelector('.stat.in-progress p');
+        const completedStat = document.querySelector('.stat.completed p');
+        const totalStat = document.querySelector('.stat.total p');
+        const archiveStat = document.querySelector('.stat.archive-stat p');
+
+        // Check if the elements are found
+        if (inProgressStat) inProgressStat.textContent = data.inProgress || 0;
+        if (completedStat) completedStat.textContent = data.completed || 0;
+        if (totalStat) totalStat.textContent = data.total || 0;
+        if (archiveStat) archiveStat.textContent = data.archived || 0;
+
+    } catch (error) {
+        console.error('Error fetching project stats:', error);
+    }
+}
+

@@ -1,6 +1,14 @@
 <?php
 session_start();
+if (isset($_SESSION['ad_name'])) {
+    $name = $_SESSION['ad_name'];  // Get the user's name from session
+} else {
+    // Redirect the user to the login page if not logged in
+    header("Location: signin.html");
+    exit();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -136,7 +144,7 @@ session_start();
         <div class="top">
             <!-- searchBx start -->
             <div class="searchBx">
-                <h2>Hi, Angel!</h2>
+                <h2>Hi, <?php echo htmlspecialchars($name); ?>!</h2>
                 <div class="inputBx">
                     <span class="material-symbols-outlined searchOpen">
                         <!-- search -->
@@ -429,73 +437,143 @@ session_start();
         <!-- DASHBOARD END -->
 
         <!-- PROJECTS -->
-        <section id="projects" class="proj">
-            <div class="proj-wrap">
-                <div class="projects-overview">
-                    <h1>Projects</h1>
-                    <div class="projects-date">
-                        <p id="current-date">
-                    </div>
-                </div>
+    <section id="projects" class="proj">
+    <div class="proj-wrap">
+        <div class="projects-overview">
+            <h1>Projects</h1>
+            <div class="projects-date">
+                <p id="current-date"></p> <!-- Ensure the tag is properly closed -->
+            </div>
+        </div>
 
-                <div class="projects-actions">
-                    <div class="projects-stats">
-                        <div class="stat">
-                            <p>0</p>
-                            <span>In Progress</span>
-                        </div>
-                        <div class="stat">
-                            <p>0</p>
-                            <span>Completed</span>
-                        </div>
-                        <div class="stat">
-                            <p>0</p>
-                            <span>Total Projects</span>
-                        </div>
-                    </div>
-                    <i class='bx bx-filter'><p class="filter-btn">Filter</p></i>
-                    <button class="new-project-btn">+ New Project</button>
+        <div class="projects-actions">
+            <div class="projects-stats">
+                <div class="stat in-progress">
+                    <p>0</p>
+                    <span>In Progress</span>
+                </div>
+                <div class="stat completed">
+                    <p>0</p>
+                    <span>Completed</span>
+                </div>
+                <div class="stat total">
+                    <p>0</p>
+                    <span>Total Projects</span>
+                </div>
+                <div class="stat archive-stat">
+                    <p id="archive-count">0</p>
+                    <span>Archives</span>
+                    <div id="archive-container" class="projects-grids archive-container"></div>
                 </div>
             </div>
+            <i class='bx bx-filter'><p class="filter-btn">Filter</p></i>
+            <div class="plus-container">
+                <button id="plusButton" class="plus-btn">+</button>
+                <div id="plus-options" class="plus-options hidden">
+                    <button class="join-option-btn">Join a Project</button>
+                    <button class="new-project-btn">New Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div id="project-container" class="projects-grids">
-                <!-- Project Card 1 -->
-                <div id="project-card-template" class="project-cards">
+    <!-- JOIN PROJECT -->
+    <div class="join-modal" id="join-modal" style="display: none;">
+        <div class="j-modal" id="j-modal">
+            <div class="j-modal-body">
+                <h2>Enter Code</h2>
+                <div class="code-inputs">
+                    <input type="text" maxlength="1" id="code1">
+                    <input type="text" maxlength="1" id="code2">
+                    <input type="text" maxlength="1" id="code3">
+                    <input type="text" maxlength="1" id="code4">
+                    <input type="text" maxlength="1" id="code5">
+                    <input type="text" maxlength="1" id="code6">
+                </div>
+            </div>
+            <div class="j-modal-footer">
+                <button class="j-btn-primary" id="join-project-btn">Join</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="project-container" class="projects-grids"></div>
+
+    <script>
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', options); // 'en-US' for English format
+        }
+
+        async function fetchProjects() {
+            try {
+                const response = await fetch('back_end/fetch_projects.php');
+                const projects = await response.json();
+
+                if (projects.message) {
+                    alert(projects.message);
+                    return;
+                }
+
+                renderProjects(projects);
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        }
+        // Function to render the project cards
+        function renderProjects(projects) {
+            const projectContainer = document.getElementById('project-container');
+            projectContainer.innerHTML = ''; // Clear any existing cards
+
+            projects.forEach(project => {
+                const projectCard = document.createElement('div');
+                projectCard.classList.add('project-cards');
+                projectCard.setAttribute('data-project-id', project.id); 
+
+                projectCard.innerHTML = `
                     <div class="proj-cards">
                         <div class="card-headers">
-                            <p class="project-date"></p>
-                            <div class="menu-icon">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-
-                                 <!-- Dropdown menu -->
-                                <div class="p-dropdown-menu">
-                                    <div class="p-dropdown-item delete">Delete</div>
-                                </div>
-                            </div>
+                            <p class="project-date">${formatDate(project.start_date)}</p>
+                            <i class='bx bx-archive-in'></i>
                         </div>
                         <div class="p-title">
-                            <h3></h3>
-                            <p></p>
+                            <h3>${project.name || 'No Name Provided'}</h3>
+                            <p>${project.category || 'No Category Provided'}</p>
                         </div>
                         <div class="progresss">
-                            <div class="progress-bars" style="width: 0%;"></div>
+                            <div class="progress-bars" style="width: ${calculateProgress(project.days_left, project.finish_date)}%;"></div>
                         </div>
                         <div class="progress-percentage">
-                            <span>0%</span>
+                            <span>${calculateProgress(project.days_left, project.finish_date)}%</span>
                         </div>
                         <div class="project-footers">
                             <div class="avatars">
                                 <img src="pics/mona.jpg" alt="Team Member">
                                 <img src="pics/SHREK.jpg" alt="Team Member">
-                                <span class="add-team-member">+</span>
                             </div>
-                            <p class="due"></p>
+                            <p class="due">Due in ${project.days_left || 'N/A'} days</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>   
+                `;
+                projectContainer.appendChild(projectCard);
+            });
+        }
+
+
+        // Function to calculate the progress of the project
+        function calculateProgress(daysLeft, finishDate) {
+            const totalDays = Math.floor((new Date(finishDate) - new Date()) / (1000 * 60 * 60 * 24));
+            const progress = (100 * (totalDays - daysLeft) / totalDays);
+            return Math.max(0, Math.min(100, progress));  // Ensure progress stays between 0 and 100
+        }
+
+        fetchProjects();
+    </script>
+    
+</section>
+
 
         <!-- TASKS & DOCUMENTS -->
         <div class="proj-details" style="display: none;">
@@ -505,7 +583,6 @@ session_start();
                 <span id="tasks-tab" class="tab">Tasks</span>
                 <span id="documents-tab" class="tab">Documents</span>
                 <div class="ad-btn">
-                    <button class="proj-add-user"><i class='bx bx-plus'></i> <i class='bx bxs-user'></i></button>
                     <button class="proj-upload-btn" style="display: none;"><i class='bx bx-cloud-upload'></i> Upload</button>
                 </div>
             </div>
