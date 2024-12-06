@@ -189,8 +189,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
-
 // PROJECT-DATE
 document.addEventListener('DOMContentLoaded', function() {
   const dateElement = document.getElementById('current-date');
@@ -229,8 +227,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
-// PROJECT MODAL
 document.addEventListener("DOMContentLoaded", function () {
   const modalOverlay = document.getElementById("modal-overlay");
   const newProjectBtn = document.querySelector(".new-project-btn");
@@ -280,87 +276,152 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 
-  // Function to create a new project card
-  function createProjectCard(name, category, date, daysLeft) {
+  // Fetch projects from the backend and create project cards
+  function fetchProjects() {
+      fetch('back_end/get_projects.php')
+          .then(response => response.json())
+          .then(projects => {
+              // Clear any existing projects
+              const projectList = document.getElementById("project-list");
+              projectList.innerHTML = '';
+
+              // Loop through the projects and create a card for each
+              projects.forEach(project => {
+                  createProjectCard(
+                      project.name,
+                      project.category,
+                      project.start_date,
+                      project.finish_date,
+                      project.days_left,
+                      project.access_code,
+                      project.status,
+                      project.color
+                  );
+              });
+          })
+          .catch(error => {
+              console.error('Error fetching projects:', error);
+          });
+  }
+
+  // Function to create a project card
+  function createProjectCard(name, category, startDate, finishDate, daysLeft, accessCode, status, color) {
       const card = document.createElement("div");
       card.classList.add("project-cards");
-      card.style.backgroundColor = selectedColor;
+      card.style.backgroundColor = color;
 
-      // Set text color to black
       const textColor = "#000000";
-      const darkerColor = darkenColor(selectedColor, 0.2); // 20% darker
+      const darkerColor = darkenColor(color, 0.2);
+
+      const startFormatted = new Date(startDate).toLocaleString("en-US", {
+          weekday: "short", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+      });
+      const finishFormatted = new Date(finishDate).toLocaleString("en-US", {
+          weekday: "short", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+      });
 
       card.innerHTML = `
-          <div class="card-headers">
-              <p class="project-date" style="color: ${textColor};">${new Date(date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-              })}</p>
-              <div class="menu-icon">
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                  <!-- Dropdown menu -->
-                  <div class="p-dropdown-menu">
-                    <div class="p-dropdown-item archive">Archive</div>
-                    <div class="p-dropdown-item delete">Delete</div>
-                  </div>
-              </div>
-          </div>
-          <div class="p-title" style="color: ${textColor};">
+          <div class="project-header" style="background-color: ${darkerColor}; color: ${textColor}">
               <h3>${name}</h3>
-              <p>${category}</p>
+              <p>Status: <span class="status">${status}</span></p>
           </div>
-          <div class="progresss">
-              <div class="progress-bars" style="width: 0%; background-color: ${darkerColor};"></div>
-          </div>
-          <div class="progress-percentage">
-              <span style="color: ${textColor};">0%</span>
-          </div>
-          <div class="project-footers">
-              <div class="avatars">
-                  <img src="pics/mona.jpg" alt="Team Member">
-                  <img src="pics/SHREK.jpg" alt="Team Member">
-                  <span class="add-team-member" style="background-color: ${darkerColor};">+</span>
-              </div>
-              <p class="due" style="background-color: ${darkerColor}; color: ${textColor};">${daysLeft} Days Left</p>
+          <div class="project-body">
+              <p>Category: ${category}</p>
+              <p>Start Date: ${startFormatted}</p>
+              <p>Finish Date: ${finishFormatted}</p>
+              <p>Days Left: ${daysLeft}</p>
+              <p>Access Code: ${accessCode}</p>
           </div>
       `;
 
-      projectContainer.appendChild(card);
+      // Append the card to the project list
+      const projectList = document.getElementById("project-list");
+      projectList.appendChild(card);
   }
 
-  // Save project and create card
+  // Function to save project to the backend
   saveProjectBtn.addEventListener("click", (event) => {
       event.preventDefault();
 
       // Get form values
       const projectName = document.getElementById("project-name").value;
       const projectCategory = document.getElementById("project-category").value;
-      const startDate = new Date();  // Capture current date when project is added
+      const description = document.getElementById("description").value;
+      const startDate = document.getElementById("start-date").value;
       const finishDate = document.getElementById("finish-date").value;
 
-      // Calculate days left
+      // Validate required fields
+      if (!projectName || !projectCategory || !description || !startDate || !finishDate) {
+          alert("Please fill in all fields.");
+          return; // Stop form submission
+      }
+
+      // Validate the start date (it must not be in the past)
+      const currentDate = new Date();
+      const startDateObj = new Date(startDate);
+      if (startDateObj < currentDate) {
+          alert("Start date cannot be in the past.");
+          return;
+      }
+
+      // Validate the finish date (it must not be before the start date)
+      const finishDateObj = new Date(finishDate);
+      if (finishDateObj < startDateObj) {
+          alert("Finish date cannot be before the start date.");
+          return;
+      }
+
+      // Calculate the days left
       const daysLeft = calculateDaysLeft(finishDate);
+      const status = daysLeft < 0 ? "Overdue" : "Ongoing"; // Set status based on the finish date
 
-      // Create project card
-      createProjectCard(projectName, projectCategory, startDate, daysLeft);
+      // Prepare project data
+      const projectData = {
+          name: projectName,
+          category: projectCategory,
+          description: description,
+          startDate: startDate,
+          finishDate: finishDate,
+          colorTheme: selectedColor,
+          daysLeft: daysLeft,
+          status: status // Send status to backend
+      };
 
-      // Clear and close the modal
-      document.querySelector(".project-form").reset();
-      modalOverlay.style.display = "none";
+      // Send data to the server (backend)
+      fetch('back_end/save_project.php', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(projectData)
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.message === 'Project created successfully!') {
+              // Fetch and display all projects again (to include the newly added one)
+              fetchProjects();
+              
+              // Close the modal and reset the form
+              document.querySelector(".project-form").reset();
+              modalOverlay.style.display = "none";
+          } else {
+              console.error('Error:', data.message);
+              alert(data.message);
+          }
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+          alert('An error occurred while saving the project.');
+      });
   });
-});
 
+  // Call fetchProjects to display existing projects when page is loaded
+  fetchProjects();
 
-//PROJECT-CARD MENU DROPDOWN
-document.addEventListener("DOMContentLoaded", function () {
-  const projectContainer = document.getElementById("project-container");
-
-  // Event listener for menu-icon clicks to show/hide the dropdown
+  // PROJECT-CARD MENU DROPDOWN
   projectContainer.addEventListener("click", function (event) {
       const menuIcon = event.target.closest(".menu-icon");
-      
+
       // If a menu icon was clicked
       if (menuIcon) {
           // Prevent click event from propagating to document
@@ -388,7 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   });
 
-  // Close dropdown if clicked outside of menu-icon
+  // CLOSE ALL DROPDOWN MENUS IF CLICKED OUTSIDE
   document.addEventListener("click", function () {
       document.querySelectorAll(".p-dropdown-menu").forEach(menu => menu.style.display = "none");
   });

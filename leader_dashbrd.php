@@ -467,7 +467,7 @@ session_start();
             <div class="p-modal">
                 <!-- <i class='bx bx-x-x'></i> -->
                 <h2>Add New Project</h2>
-                <form class="project-form">
+                <form class="project-form" action="back_end/save_project.php" method="post">
                     <label for="project-name">Project Name</label>
                     <input type="text" id="project-name" placeholder="Enter project name">
         
@@ -487,7 +487,7 @@ session_start();
                     </div>
 
                     <!-- Add Team Member -->
-                    <label for="team-members">Team Members</label>
+                    <!-- <label for="team-members">Team Members</label>
                     <div class="team-members-container">
                         <div class="input-container">
                             <i class='bx bxs-envelope' style='color:#868686'></i>
@@ -496,10 +496,10 @@ session_start();
                                 <option>Can view</option>
                                 <option>Full access</option>
                             </select>
-                        </div>
+                        </div> -->
                     
                         <!-- Dropdown with search results -->
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <div class="dropdown-item">
                                 <img src="profile1.jpg" alt="Profile Picture">
                                 <div class="info">
@@ -522,7 +522,7 @@ session_start();
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Due Date Section -->
                     <label for="due-date">Due Date</label>
