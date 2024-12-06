@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign In</title>
+  <link rel="stylesheet" href="signin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container" id="container">
+  <!-- Sign-Up Form -->
+  <div class="form_container signup_container">
+    <form method="POST" action="back_end/signup.php">
+      <h1 class="text">Create Account</h1>
+      <div class="social_container_signup">
+        <a href="#" class="social_signup"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social_signup"><i class="fab fa-google-plus-g"></i></a>
+        <a href="#" class="social_signup"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <span class="separator">or</span>
+
+      <div class="labels">
+        <!-- Add a Sign-Up error message element -->
+        <p id="signup-error-message" style="color: red; display: none; font-size: small; font-weight: 500;"></p>
+
+        <label for="name">Name</label>
+        <input type="text" name="name" placeholder="name" required>
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="username" required>
+        <label for="email">Email</label>
+        <input type="email" name="email" placeholder="email" required>
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="password" required>
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="confirm password" required>
+        <button class="signup" type="submit">Sign Up</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sign-In Form -->
+  <div class="form_container signin_container">
+    <form method="POST" action="back_end/login.php">
+      <h1>Sign In</h1>
+
+      <div class="social_container">
+        <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+        <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <span class="separator">or</span>
+
+      <div class="label">
+        <label for="usernameSignIn">Username</label>
+        <input type="text" name="lusername" placeholder="username" required>
+        <label for="passwordSignIn">Password</label>
+        <input type="password" name="lpassword" placeholder="password" required>
+        <label for="rememberMe">
+          <input type="checkbox" name="rememberMe" id="rememberMe"> Remember Me
+        </label>
+        <!-- Error Message, initially hidden -->
+        <p id="error-message" style="color: red; display: none; font-size: small; font-weight: 500;">Invalid username or password. Please try again.</p> 
+
+        <button class="login" type="submit">Log In</button>
+        <a href="#" class="forgot">Forgot your password?</a> 
+      </div>
+    </form>
+  </div>
+
+  <!-- Overlay Container -->
+  <div class="overlay_container">
+    <div class="overlay">
+      <div class="overlay_panel overlay_left">
+        <h1>Welcome Back!</h1>
+        <p>To keep connected with us please login with your personal info</p>
+        <button class="ghost" id="signIn">Log In</button>
+      </div>
+      <div class="overlay_panel overlay_right">
+        <h1>Hello, Friend!</h1>
+        <p>Enter your personal details and start journey with us</p>
+        <button class="ghost" id="signUp">Sign Up</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="home.html" class="back_button"><img src="pics/back.png" alt="Back"></a>
+
+<!-- JavaScript file link -->
+<script src="js/signin.js"></script>
+<script src="back_end/coockies.js"></script>
+
+</body>
+</html>
