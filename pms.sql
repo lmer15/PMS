@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2024 at 07:19 AM
+-- Generation Time: Dec 09, 2024 at 12:51 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,16 +32,37 @@ CREATE TABLE `accountsdetails` (
   `ad_name` varchar(100) NOT NULL,
   `ad_username` varchar(50) NOT NULL,
   `ad_email` varchar(50) NOT NULL,
-  `ad_password` varchar(200) NOT NULL
+  `ad_password` varchar(200) NOT NULL,
+  `plan_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `accountsdetails`
 --
 
-INSERT INTO `accountsdetails` (`ad_ID`, `ad_name`, `ad_username`, `ad_email`, `ad_password`) VALUES
-(12, 'Elmer', 'Rapon', 'raponelmer15@gmail.com', '$2y$10$Tv1v81.iYfj6Qfyv2OqqYeVGhN0E8daSR8kVksEAz7tQ7V7k6f10q'),
-(13, 'Jamaica Anuba', 'maica', 'anubajamaica@gmail.com', '$2y$10$lscIeZiPEkQi8yjM6bXwKOuHGXs1HahfXBoPKPbLcJFsIDbXnSlYS');
+INSERT INTO `accountsdetails` (`ad_ID`, `ad_name`, `ad_username`, `ad_email`, `ad_password`, `plan_id`) VALUES
+(22, 'Elmer Rapon', 'lmer15', 'raponelmer15@gmail.com', '$2y$10$3Sh6sVCMhu6weIRn1fMG..9Hs6eNQHcyrSrzpsktDmk2cVdc5a2Oy', 1),
+(23, 'Jamaica Anuba', 'maica', 'jamaica@gmail.com', '$2y$10$GZYEo/Blb9p3a7zy1IZvDOKaF4F7tyYP8Er/vn8Rti5.rKgRa/HHG', 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payment`
+--
+
+CREATE TABLE `payment` (
+  `pay_id` int(11) NOT NULL,
+  `sub_id` int(11) NOT NULL,
+  `pay_date` date NOT NULL,
+  `pay_status` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payment`
+--
+
+INSERT INTO `payment` (`pay_id`, `sub_id`, `pay_date`, `pay_status`) VALUES
+(20, 20, '2024-12-08', 'Completed');
 
 -- --------------------------------------------------------
 
@@ -67,23 +88,14 @@ CREATE TABLE `projects` (
 --
 
 INSERT INTO `projects` (`id`, `owner`, `name`, `category`, `start_date`, `finish_date`, `access_code`, `color`, `days_left`, `status`) VALUES
-(7, 12, 'IT3A | TYPING CONTEST', 'Typing contest for all the IT3A sections.', '2024-12-07', '2024-12-08', '36DFD5', '#b6c1ff', 1, 'archived'),
-(8, 12, 'TYPING', 'cskjdfhkergilfbj', '2024-12-07', '2024-12-16', 'B27F25', '#b7e6c9', 9, 'Ongoing'),
-(9, 12, 'kefhekbgf', 'etfheritil5ynh', '2024-12-07', '2024-12-07', '2FFB92', '#b7e6c9', 0, 'Ongoing'),
-(10, 12, 'nashsdvfkhrjlghtgn', 'frhrsjry', '2024-12-13', '2024-12-18', '330CFA', '#b6c1ff', 11, 'Ongoing'),
-(11, 13, 'sssssssss', 'vvvvvv', '2024-12-19', '2024-12-25', 'F474B6', '#e6b7e0', 18, 'archived'),
-(12, 12, 'KJHFERLDKGGRTRTMUTJ', 'RHDRYJSYKRDKTUK', '2024-12-07', '2024-12-10', 'A154F7', '#b7e6c9', 3, 'Ongoing'),
-(13, 12, 'SDGSEK6', 'RJSRTRJ', '2024-12-25', '2024-12-26', 'E25C17', '#b7e6c9', 19, 'Ongoing'),
-(14, 12, 'THJFBKJGKBKNKM,', 'DJGRLKGNLRGLKM,G', '2024-12-14', '2024-12-22', '083A05', '#b6c1ff', 15, 'Ongoing'),
-(15, 12, 'GDRJTRYF', 'RJRXTSRT', '2024-12-07', '2024-12-12', '66C237', '#b6c1ff', 5, 'Ongoing'),
-(16, 12, 'GDRJTRYF', 'RJRXTSRT', '2024-12-07', '2024-12-12', 'C8F083', '#b6c1ff', 5, 'Ongoing'),
-(17, 12, 'sefgsrt', 'erhs', '2024-12-14', '2024-12-26', '10A951', '#b6c1ff', 19, 'Ongoing'),
-(18, 12, 'a,jfgwekugfbjgrfd', 'edf.jkwejhgfirwgwiglrrg', '2024-12-14', '2024-12-16', '493A62', '#b6c1ff', 9, 'Ongoing'),
-(19, 13, 'RUHGERKBGJTH', 'RGERJGHBRLJGMR', '2024-12-19', '2025-01-02', 'DC2432', '#b6c1ff', 26, 'archived'),
-(20, 13, 'ANDFKGNKLER .,HN', 'EFWKEHFWELGNKREG', '2024-12-13', '2024-12-25', 'AA800F', '#b7e6c9', 18, 'archived'),
-(21, 13, 'ANDFKGNKLER .,HN', 'EFWKEHFWELGNKREG', '2024-12-13', '2024-12-25', '6DF6CE', '#b7e6c9', 18, 'Ongoing'),
-(22, 13, 'jdbcksdjvbdkfjgmfb', 'wdjhgdjesfdkbfbjk', '2024-12-08', '2024-12-10', 'DE9572', '#b6c1ff', 3, 'Ongoing'),
-(23, 13, 'jkedfskdjfd', 'keshfoilrsglnket', '2024-12-13', '2024-12-13', '4B0282', '#b6c1ff', 6, 'Ongoing');
+(34, 22, 'BSIT3A_FINAL_WORKS', 'Coding Collaboration', '2024-12-10', '2024-12-11', '93C03F', '#b6c1ff', 2, 'Ongoing'),
+(35, 22, 'GROUP2_MOVIE SCRIPT', 'Send Script Each Scene', '2024-12-11', '2024-12-12', '58C2C2', '#b7e6c9', 3, 'Ongoing'),
+(36, 22, 'TEAM GAIA | FINAL ', 'System Collaboration', '2024-12-13', '2024-12-18', '669BD9', '#e6b7e0', 9, 'Ongoing'),
+(37, 22, 'MAMATAY NAKO ANI HAPIT', 'Tabang mga langit. Mygaddd', '2024-12-16', '2024-12-17', '1E38FF', '#ffffff', 8, 'Ongoing'),
+(38, 22, 'MAMA MIA | IT HURTS', 'Nganong siya paman?', '2024-12-25', '2024-12-25', '7D2509', '#e6b7e0', 16, 'Ongoing'),
+(39, 22, 'Marris Racal Issue', 'Tsismis is life, yeah yeah', '2024-12-10', '2024-12-18', '625559', '#b6c1ff', 9, 'Ongoing'),
+(40, 22, 'SADBOI SPOTTED', 'Kung ako nalang jd diay?', '2024-12-13', '2024-12-22', 'CF8BBD', '#b7e6c9', 13, 'Ongoing'),
+(41, 22, 'Manifesting Research Defended', 'Sir malooy ka papasara me.', '2024-12-19', '2024-12-22', 'FF13E6', '#b6c1ff', 13, 'Ongoing');
 
 -- --------------------------------------------------------
 
@@ -98,12 +110,48 @@ CREATE TABLE `project_members` (
   `status` varchar(50) NOT NULL DEFAULT 'Active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `project_members`
+-- Table structure for table `subscription`
 --
 
-INSERT INTO `project_members` (`membersID`, `project_id`, `user_id`, `status`) VALUES
-(4, 7, 13, 'Active');
+CREATE TABLE `subscription` (
+  `sub_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `sub_status` varchar(50) NOT NULL,
+  `start_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subscription`
+--
+
+INSERT INTO `subscription` (`sub_id`, `user_id`, `plan_id`, `sub_status`, `start_date`) VALUES
+(20, 22, 1, 'Active', '2024-12-08 22:33:10');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subscription_plan`
+--
+
+CREATE TABLE `subscription_plan` (
+  `plan_id` int(11) NOT NULL,
+  `plan_name` varchar(50) NOT NULL,
+  `price` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subscription_plan`
+--
+
+INSERT INTO `subscription_plan` (`plan_id`, `plan_name`, `price`) VALUES
+(1, 'Basic', 19.00),
+(2, 'Standard', 39.00),
+(3, 'Professional', 59.00),
+(4, 'default', 0.00);
 
 --
 -- Indexes for dumped tables
@@ -113,7 +161,15 @@ INSERT INTO `project_members` (`membersID`, `project_id`, `user_id`, `status`) V
 -- Indexes for table `accountsdetails`
 --
 ALTER TABLE `accountsdetails`
-  ADD PRIMARY KEY (`ad_ID`);
+  ADD PRIMARY KEY (`ad_ID`),
+  ADD KEY `accountsdetails_ibfk_1` (`plan_id`);
+
+--
+-- Indexes for table `payment`
+--
+ALTER TABLE `payment`
+  ADD PRIMARY KEY (`pay_id`),
+  ADD KEY `sub_id` (`sub_id`);
 
 --
 -- Indexes for table `projects`
@@ -131,6 +187,20 @@ ALTER TABLE `project_members`
   ADD KEY `project_members_ibfk_2` (`user_id`);
 
 --
+-- Indexes for table `subscription`
+--
+ALTER TABLE `subscription`
+  ADD PRIMARY KEY (`sub_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `plan_id` (`plan_id`);
+
+--
+-- Indexes for table `subscription_plan`
+--
+ALTER TABLE `subscription_plan`
+  ADD PRIMARY KEY (`plan_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -138,23 +208,53 @@ ALTER TABLE `project_members`
 -- AUTO_INCREMENT for table `accountsdetails`
 --
 ALTER TABLE `accountsdetails`
-  MODIFY `ad_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `ad_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `payment`
+--
+ALTER TABLE `payment`
+  MODIFY `pay_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `project_members`
 --
 ALTER TABLE `project_members`
-  MODIFY `membersID` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `membersID` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `subscription`
+--
+ALTER TABLE `subscription`
+  MODIFY `sub_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `subscription_plan`
+--
+ALTER TABLE `subscription_plan`
+  MODIFY `plan_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `accountsdetails`
+--
+ALTER TABLE `accountsdetails`
+  ADD CONSTRAINT `accountsdetails_ibfk_1` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plan` (`plan_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `payment`
+--
+ALTER TABLE `payment`
+  ADD CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`sub_id`) REFERENCES `subscription` (`sub_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `projects`
@@ -168,6 +268,13 @@ ALTER TABLE `projects`
 ALTER TABLE `project_members`
   ADD CONSTRAINT `project_members_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
   ADD CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `accountsdetails` (`ad_ID`);
+
+--
+-- Constraints for table `subscription`
+--
+ALTER TABLE `subscription`
+  ADD CONSTRAINT `subscription_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `accountsdetails` (`ad_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `subscription_ibfk_2` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plan` (`plan_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -10,37 +10,68 @@ if (!isset($_SESSION['ad_ID'])) {
 
 $creatorID = $_SESSION['ad_ID'];
 
-// Fetch the count of ongoing (In Progress) projects
-$queryInProgress = "SELECT COUNT(*) FROM projects WHERE owner = ? AND status = 'Ongoing'";
+// Fetch the count of ongoing (In Progress) projects where the user is the owner or a member
+$queryInProgress = "
+    SELECT COUNT(*) 
+    FROM projects 
+    WHERE (owner = ? OR EXISTS (
+        SELECT 1 
+        FROM project_members 
+        WHERE project_members.project_id = projects.id AND project_members.user_id = ?
+    )) 
+    AND status = 'Ongoing'";
 $stmtInProgress = mysqli_prepare($conn, $queryInProgress);
-mysqli_stmt_bind_param($stmtInProgress, 's', $creatorID);
+mysqli_stmt_bind_param($stmtInProgress, 'ss', $creatorID, $creatorID);
 mysqli_stmt_execute($stmtInProgress);
 $resultInProgress = mysqli_stmt_get_result($stmtInProgress);
 $rowInProgress = mysqli_fetch_row($resultInProgress);
 $inProgressCount = $rowInProgress[0];
 
-// Fetch the count of completed projects
-$queryCompleted = "SELECT COUNT(*) FROM projects WHERE owner = ? AND status = 'Completed'";
+// Fetch the count of completed projects where the user is the owner or a member
+$queryCompleted = "
+    SELECT COUNT(*) 
+    FROM projects 
+    WHERE (owner = ? OR EXISTS (
+        SELECT 1 
+        FROM project_members 
+        WHERE project_members.project_id = projects.id AND project_members.user_id = ?
+    )) 
+    AND status = 'Completed'";
 $stmtCompleted = mysqli_prepare($conn, $queryCompleted);
-mysqli_stmt_bind_param($stmtCompleted, 's', $creatorID);
+mysqli_stmt_bind_param($stmtCompleted, 'ss', $creatorID, $creatorID);
 mysqli_stmt_execute($stmtCompleted);
 $resultCompleted = mysqli_stmt_get_result($stmtCompleted);
 $rowCompleted = mysqli_fetch_row($resultCompleted);
 $completedCount = $rowCompleted[0];
 
-// Fetch the count of archived projects
-$queryArchived = "SELECT COUNT(*) FROM projects WHERE owner = ? AND status = 'Archived'";
+// Fetch the count of archived projects where the user is the owner or a member
+$queryArchived = "
+    SELECT COUNT(*) 
+    FROM projects 
+    WHERE (owner = ? OR EXISTS (
+        SELECT 1 
+        FROM project_members 
+        WHERE project_members.project_id = projects.id AND project_members.user_id = ?
+    )) 
+    AND status = 'Archived'";
 $stmtArchived = mysqli_prepare($conn, $queryArchived);
-mysqli_stmt_bind_param($stmtArchived, 's', $creatorID);
+mysqli_stmt_bind_param($stmtArchived, 'ss', $creatorID, $creatorID);
 mysqli_stmt_execute($stmtArchived);
 $resultArchived = mysqli_stmt_get_result($stmtArchived);
 $rowArchived = mysqli_fetch_row($resultArchived);
 $archivedCount = $rowArchived[0];
 
-// Fetch the count of total projects
-$queryTotal = "SELECT COUNT(*) FROM projects WHERE owner = ?";
+// Fetch the count of total projects where the user is the owner or a member
+$queryTotal = "
+    SELECT COUNT(*) 
+    FROM projects 
+    WHERE owner = ? OR EXISTS (
+        SELECT 1 
+        FROM project_members 
+        WHERE project_members.project_id = projects.id AND project_members.user_id = ?
+    )";
 $stmtTotal = mysqli_prepare($conn, $queryTotal);
-mysqli_stmt_bind_param($stmtTotal, 's', $creatorID);
+mysqli_stmt_bind_param($stmtTotal, 'ss', $creatorID, $creatorID);
 mysqli_stmt_execute($stmtTotal);
 $resultTotal = mysqli_stmt_get_result($stmtTotal);
 $rowTotal = mysqli_fetch_row($resultTotal);

@@ -10,36 +10,26 @@ if (!isset($_SESSION['ad_ID'])) {
 
 $creatorID = $_SESSION['ad_ID'];
 
-// Fetch the projects the user owns where the status is 'Ongoing'
-$queryOwner = "SELECT * FROM projects WHERE owner = ? AND status = 'Ongoing'";
-$stmtOwner = mysqli_prepare($conn, $queryOwner);
-mysqli_stmt_bind_param($stmtOwner, 's', $creatorID);
-mysqli_stmt_execute($stmtOwner);
-$resultOwner = mysqli_stmt_get_result($stmtOwner);
+// Modified query to fetch projects where the user is the owner or a member
+$query = "
+    SELECT projects.*, 
+           CASE WHEN projects.owner = ? THEN 1 ELSE 0 END AS isOwner 
+    FROM projects
+    LEFT JOIN project_members ON projects.id = project_members.project_id
+    WHERE projects.owner = ? OR project_members.user_id = ?
+";
+
+$stmt = mysqli_prepare($conn, $query);
+mysqli_stmt_bind_param($stmt, 'sss', $creatorID, $creatorID, $creatorID);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $projects = [];
-while ($row = mysqli_fetch_assoc($resultOwner)) {
+while ($row = mysqli_fetch_assoc($result)) {
     $projects[] = $row;
 }
 
-// Fetch the projects the user has joined where the status is 'Ongoing'
-$queryJoined = "SELECT p.* FROM projects p 
-                JOIN project_members pm ON p.id = pm.project_id
-                WHERE pm.user_id = ? AND p.status = 'Ongoing'";
-$stmtJoined = mysqli_prepare($conn, $queryJoined);
-mysqli_stmt_bind_param($stmtJoined, 's', $creatorID);
-mysqli_stmt_execute($stmtJoined);
-$resultJoined = mysqli_stmt_get_result($stmtJoined);
-
-while ($row = mysqli_fetch_assoc($resultJoined)) {
-    // Avoid adding the same project twice (user could be both an owner and a member)
-    if (!in_array($row, $projects)) {
-        $projects[] = $row;
-    }
-}
-
-mysqli_stmt_close($stmtOwner);
-mysqli_stmt_close($stmtJoined);
+mysqli_stmt_close($stmt);
 mysqli_close($conn);
 
 // Return the projects in JSON format

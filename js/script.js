@@ -350,14 +350,11 @@ document.addEventListener("DOMContentLoaded", function () {
     backButton.addEventListener("click", hideProjectDetails);
 });
 
-
 document.addEventListener("DOMContentLoaded", function () {
     const projectContainer = document.getElementById("project-container");
-    const archiveContainer = document.getElementById("archive-container");
     const projSection = document.querySelector(".proj");
     const projDetails = document.querySelector(".proj-details");
     const backButton = projDetails.querySelector(".bx-chevron-left");
-    const archiveCount = document.getElementById("archive-count");
 
     // Function to show project details
     function showProjectDetails() {
@@ -367,14 +364,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to hide project details
     function hideProjectDetails() {
-        projSection.style.display = "block"; 
+        projSection.style.display = "block";
         projDetails.style.display = "none";
-    }
-
-    // Function to update archive count
-    function updateArchiveCount() {
-        const archivedProjects = archiveContainer.querySelectorAll(".project-cards");
-        archiveCount.textContent = archivedProjects.length;
     }
 
     // Archive project and update status in the database
@@ -394,7 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await response.json();
             if (result.success) {
                 alert('Project archived successfully!');
-                fetchProjects(); // Refresh the projects after archiving
+                fetchProjects(); // Re-fetch project list
                 fetchProjectStats();
             } else {
                 alert('Error archiving project: ' + result.message);
@@ -405,31 +396,76 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Unarchive project and update status in the database
+    async function unarchiveProject(projectId) {
+        const userConfirmed = confirm("Are you sure you want to unarchive this project?");
+        if (!userConfirmed) return;
+
+        try {
+            const response = await fetch('back_end/unarchive_project.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ projectId: projectId })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Project unarchived successfully!');
+                fetchProjects(); // Re-fetch project list
+                fetchProjectStats();
+            } else {
+                alert('Error unarchiving project: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error unarchiving project:', error);
+            alert('An error occurred while unarchiving the project.');
+        }
+    }
+
+    // Event listener for project container (for project card interactions)
     projectContainer.addEventListener("click", (event) => {
         const archiveIconClicked = event.target.closest(".bx-archive-in");
-        
-        if (archiveIconClicked) {
-            const projectCard = event.target.closest(".project-cards");
-            const projectId = projectCard.dataset.projectId; // Get the project ID from the card data attribute
-            
-            archiveProject(projectId); // Archive the project
-            return; 
-        }
-
+        const unarchiveIconClicked = event.target.closest(".bx-recycle");
         const clickedElement = event.target.closest(".project-cards");
+
+        // Ensure the clicked element is a project card
         if (clickedElement) {
-            showProjectDetails();
+            const isArchived = clickedElement.dataset.archived === "true";
+            const projectId = clickedElement.dataset.projectId;
+
+            // Handle archive icon click
+            if (archiveIconClicked) {
+                event.stopPropagation(); // Prevent the project card click
+                archiveProject(projectId);
+                return;
+            }
+
+            // Handle unarchive icon click
+            if (unarchiveIconClicked) {
+                event.stopPropagation(); // Prevent the project card click
+                unarchiveProject(projectId);
+                return;
+            }
+
+            // Handle click on project card to show project details (only if not archived)
+            if (!isArchived) {
+                showProjectDetails();
+            } else {
+                alert("This project is archived and cannot be accessed.");
+            }
         }
     });
 
-    backButton.addEventListener("click", hideProjectDetails);
+    // Handle back button to return to the list of projects
+    backButton.addEventListener("click", function () {
+        hideProjectDetails();
+    });
 
     // Fetch and render projects initially
     fetchProjects();
 });
-
-
-
 
 
 //TASKS & DOCS TOGGLE
@@ -589,18 +625,32 @@ uploadButton.addEventListener('click', () => filInput.click());
 filInput.addEventListener('change', () => {
   if (filInput.files && filInput.files[0]) {
     const file = filInput.files[0];
-    const reader = new FileReader();
+    const formData = new FormData();
+    formData.append('profileImage', file);
 
-    reader.onload = (e) => {
-      profilePics.forEach((pic) => {
-        pic.style.backgroundImage = `url('${e.target.result}')`;
-        pic.style.backgroundSize = 'cover';
-        pic.style.backgroundPosition = 'center';
-      });
-      checkImageDisplay();
-    };
-
-    reader.readAsDataURL(file);
+    // Send the file to the backend using AJAX
+    fetch('uploadImage.php', {
+      method: 'POST',
+      body: formData,
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // If the upload is successful, update the profile picture display
+        profilePics.forEach((pic) => {
+          pic.style.backgroundImage = `url('${data.filePath}')`;
+          pic.style.backgroundSize = 'cover';
+          pic.style.backgroundPosition = 'center';
+        });
+        checkImageDisplay();
+      } else {
+        alert('Error uploading image: ' + data.message);
+      }
+    })
+    .catch((error) => {
+      console.error('Error uploading image:', error);
+      alert('An error occurred while uploading the image.');
+    });
   }
 });
 
@@ -614,7 +664,6 @@ removeButton.addEventListener('click', () => {
   profilePics.forEach((pic) => (pic.style.backgroundImage = ''));
   checkImageDisplay();
 });
-
 
 
 //SETTINGS-PROFILE FORM
@@ -664,96 +713,109 @@ plusButton.addEventListener('click', function () {
     }
 });
 
-//JOIN BUTTON FUNCTIONALITY
 document.addEventListener("DOMContentLoaded", () => {
     const joinButton = document.querySelector(".join-option-btn");
     const modal = document.getElementById("join-modal");
     const modalContent = document.getElementById("j-modal");
     const inputs = document.querySelectorAll(".code-inputs input");
-  
+
     joinButton.addEventListener("click", () => {
-      modal.style.display = "flex"; 
+        modal.style.display = "flex";
+        if (inputs.length > 0) inputs[0].focus(); // Focus on the first input field
     });
-  
+
     modal.addEventListener("click", (event) => {
-      if (!modalContent.contains(event.target)) {
-        closeModal();
-      }
+        if (!modalContent.contains(event.target)) {
+            closeModal();
+        }
     });
-  
+
     function closeModal() {
-      modal.style.display = "none"; 
-      inputs.forEach((input) => (input.value = "")); 
+        modal.style.display = "none";
+        inputs.forEach((input) => (input.value = "")); // Clear all inputs
     }
 
-    document.getElementById('join-project-btn').addEventListener('click', async () => {
+    // Add auto-focus logic for code inputs
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+            if (input.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus(); // Move to the next input
+            }
+        });
+
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Backspace" && index > 0 && input.value === "") {
+                inputs[index - 1].focus(); // Move to the previous input on Backspace
+            }
+        });
+    });
+
+    document.getElementById("join-project-btn").addEventListener("click", async () => {
         const codeInputs = [
-            document.getElementById('code1').value,
-            document.getElementById('code2').value,
-            document.getElementById('code3').value,
-            document.getElementById('code4').value,
-            document.getElementById('code5').value,
-            document.getElementById('code6').value
+            document.getElementById("code1").value,
+            document.getElementById("code2").value,
+            document.getElementById("code3").value,
+            document.getElementById("code4").value,
+            document.getElementById("code5").value,
+            document.getElementById("code6").value,
         ];
-        
-        const projectCode = codeInputs.join('');  
-    
+
+        const projectCode = codeInputs.join(""); 
+
         if (projectCode.length === 6) { 
             try {
-                const response = await fetch('back_end/join_project.php', {
-                    method: 'POST',
+                const response = await fetch("http://localhost/PMS/back_end/join_project.php",{
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ projectCode })
+                    body: JSON.stringify({ projectCode }),
                 });
 
                 const text = await response.text();
-                console.log('Raw response:', text);
+                console.log("Raw response:", text);
 
                 const result = JSON.parse(text); 
-    
+
                 if (result.success) {
-                    alert('You have successfully joined the project!');
-                    document.getElementById('join-modal').style.display = 'none'; 
+                    alert("You have successfully joined the project!");
+                    document.getElementById("join-modal").style.display = "none"; 
                     fetchProjects(); 
                 } else {
-                    alert('Invalid code. Please try again.');
+                    alert("Invalid code. Please try again.");
                 }
             } catch (error) {
-                console.error('Error joining project:', error);
-                alert('An error occurred. Please try again.');
+                console.error("Error joining project:", error);
+                alert("An error occurred. Please try again.");
             }
         } else {
-            alert('Please enter the full 6-digit project code.');
+            alert("Please enter the full 6-digit project code.");
         }
     });
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchProjectStats(); // Call fetchProjectStats after the DOM is loaded
+    await fetchProjectStats();
 });
 
 async function fetchProjectStats() {
     try {
-        // Make an API call to fetch the project stats
         const response = await fetch('back_end/fetch_project_number.php');
         const data = await response.json();
 
-        // Ensure the elements exist before attempting to set their textContent
         const inProgressStat = document.querySelector('.stat.in-progress p');
         const completedStat = document.querySelector('.stat.completed p');
         const totalStat = document.querySelector('.stat.total p');
         const archiveStat = document.querySelector('.stat.archive-stat p');
+        const joinedStat = document.querySelector('.stat.joined p');
 
-        // Check if the elements are found
         if (inProgressStat) inProgressStat.textContent = data.inProgress || 0;
         if (completedStat) completedStat.textContent = data.completed || 0;
         if (totalStat) totalStat.textContent = data.total || 0;
         if (archiveStat) archiveStat.textContent = data.archived || 0;
+        if (joinedStat) joinedStat.textContent = data.joined || 0;
 
     } catch (error) {
         console.error('Error fetching project stats:', error);
     }
 }
-

@@ -47,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Hash the password using password_hash()
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Insert the new user into the database
-    $query = "INSERT INTO accountsdetails (ad_name, ad_username, ad_email, ad_password) VALUES (?, ?, ?, ?)";
+    $query = "INSERT INTO accountsdetails (ad_name, ad_username, ad_email, ad_password, plan_id) VALUES (?, ?, ?, ?, 4)";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, "ssss", $name, $username, $email, $hashed_password);
 

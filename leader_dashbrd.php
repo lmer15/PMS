@@ -1,13 +1,20 @@
 <?php
 session_start();
 if (isset($_SESSION['ad_name'])) {
-    $name = $_SESSION['ad_name'];  // Get the user's name from session
+    $name = $_SESSION['ad_name']; 
+    $username = $_SESSION['ad_username'];  
+    $email = $_SESSION['ad_email'];  
+    $name_parts = explode(" ", $name);
+    $first_name = $name_parts[0];
+    $last_name = $name_parts[count($name_parts) - 1];
+
 } else {
     // Redirect the user to the login page if not logged in
     header("Location: signin.html");
     exit();
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -19,7 +26,7 @@ if (isset($_SESSION['ad_name'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PMS</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="user.css">
+    <link rel="stylesheet" href="user.css?v=1.2">
 </head>
 
 <body>
@@ -104,42 +111,121 @@ if (isset($_SESSION['ad_name'])) {
                     <h1>Choose Your Right Plan!</h1>
                     <p>Unlock endless possibilities.</p>
                 </div>
-            
+
                 <div class="sub-pricing">
+                    <!-- Basic Plan -->
                     <div class="pricing-card">
                         <h3>Basic</h3>
                         <p class="sub-price">$19<span>/mo</span></p>
                         <ul>
-                            <li>Time tracking</li>
-                            <li>Customer reports and dashboards</li>
-                            <li>Loyalty survey</li>
+                            <li>✔Time tracking</li>
+                            <li>✔Customer reports and dashboards</li>
+                            <li>✔5+ Project Creation</li>
                         </ul>
-                        <button>Select Plan</button>
+                        <div id="paypal-button-container-basic"></div>
                     </div>
+
+                    <!-- Standard Plan (Featured) -->
                     <div class="pricing-card featured">
-                        <!-- <div class="badge">Standard</div> -->
                         <h3>Standard</h3>
                         <p class="sub-price">$39<span>/mo</span></p>
                         <ul>
                             <li>Time tracking</li>
                             <li>Customer reports and dashboards</li>
-                            <li>Loyalty survey</li>
+                            <li>✔10+ Project Creation</li>
                         </ul>
-                        <button>Select Plan</button>
+                        <div id="paypal-button-container-standard"></div>
                     </div>
+
+                    <!-- Professional Plan -->
                     <div class="pricing-card">
                         <h3>Professional</h3>
                         <p class="sub-price">$59<span>/mo</span></p>
                         <ul>
                             <li>Time tracking</li>
                             <li>Customer reports and dashboards</li>
-                            <li>Loyalty survey</li>
+                            <li>Unlimited Project Creation</li>
                         </ul>
-                        <button>Select Plan</button>
+                        <div id="paypal-button-container-professional"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- PayPal SDK Script -->
+            <script src="https://sandbox.paypal.com/sdk/js?client-id=AYRLJm_vimKMK9UpA20P1lwhZX0w3g3RS2iyopGh_b8hw4-w26dHVjG0rkNZq-ignVqJajBNmerzTpXT"></script>
+
+            <script>
+                window.onload = function() {
+                    // Basic Plan PayPal button
+                    paypal.Buttons({
+                        createOrder: function(data, actions) {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    amount: {
+                                        value: '19'  // Basic plan price
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: function(data, actions) {
+                            return actions.order.capture().then(function(details) {
+                                alert('Transaction completed by ' + details.payer.name.given_name);
+                                window.location.href = 'back_end/successPayment.php?plan=basic'; 
+                            });
+                        },
+                        onError: function(err) {
+                            console.error('Error with PayPal transaction:', err);
+                        }
+                    }).render('#paypal-button-container-basic');  // Render for Basic plan
+
+                    // Standard Plan PayPal button
+                    paypal.Buttons({
+                        createOrder: function(data, actions) {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    amount: {
+                                        value: '39'  // Standard plan price
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: function(data, actions) {
+                            return actions.order.capture().then(function(details) {
+                                alert('Transaction completed by ' + details.payer.name.given_name);
+                                window.location.href = 'back_end/successPayment.php?plan=standard';  
+                            });
+                        },
+                        onError: function(err) {
+                            console.error('Error with PayPal transaction:', err);
+                        }
+                    }).render('#paypal-button-container-standard'); 
+
+                    // Professional Plan PayPal button
+                    paypal.Buttons({
+                        createOrder: function(data, actions) {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    amount: {
+                                        value: '59'  // Professional plan price
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: function(data, actions) {
+                            return actions.order.capture().then(function(details) {
+                                alert('Transaction completed by ' + details.payer.name.given_name);
+                                window.location.href = 'back_end/successPayment.php?plan=professional';  // Redirect after payment success
+                            });
+                        },
+                        onError: function(err) {
+                            console.error('Error with PayPal transaction:', err);
+                        }
+                    }).render('#paypal-button-container-professional');  // Render for Professional plan
+                };
+            </script>
         </section>
+
+
 
         <div class="top">
             <!-- searchBx start -->
@@ -436,8 +522,8 @@ if (isset($_SESSION['ad_name'])) {
         </section>
         <!-- DASHBOARD END -->
 
-        <!-- PROJECTS -->
-    <section id="projects" class="proj">
+<!-- PROJECTS -->
+<section id="projects" class="proj">
     <div class="proj-wrap">
         <div class="projects-overview">
             <h1>Projects</h1>
@@ -463,10 +549,15 @@ if (isset($_SESSION['ad_name'])) {
                 <div class="stat archive-stat">
                     <p id="archive-count">0</p>
                     <span>Archives</span>
-                    <div id="archive-container" class="projects-grids archive-container"></div>
                 </div>
             </div>
-            <i class='bx bx-filter'><p class="filter-btn">Filter</p></i>
+            <i class='bx bx-filter'><p class="filter-btn"></p></i>
+            <select id="status-filter" class="filter-dropdown">
+                    <option value="All">All Projects</option>
+                    <option value="Ongoing">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Archived">Archives</option>
+            </select>
             <div class="plus-container">
                 <button id="plusButton" class="plus-btn">+</button>
                 <div id="plus-options" class="plus-options hidden">
@@ -501,10 +592,15 @@ if (isset($_SESSION['ad_name'])) {
     <div id="project-container" class="projects-grids"></div>
 
     <script>
+        const filterDropdown = document.getElementById('status-filter');
+        filterDropdown.addEventListener('change', filterProjects);
+
+        let allProjects = [];
+
         function formatDate(dateString) {
             const options = { year: 'numeric', month: 'short', day: 'numeric' };
             const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', options); // 'en-US' for English format
+            return date.toLocaleDateString('en-US', options);
         }
 
         async function fetchProjects() {
@@ -517,26 +613,31 @@ if (isset($_SESSION['ad_name'])) {
                     return;
                 }
 
-                renderProjects(projects);
+                allProjects = projects; 
+                const filteredProjects = allProjects.filter(project => project.status !== 'Archived');
+                renderProjects(filteredProjects); 
             } catch (error) {
                 console.error('Error fetching projects:', error);
             }
         }
-        // Function to render the project cards
+
         function renderProjects(projects) {
             const projectContainer = document.getElementById('project-container');
-            projectContainer.innerHTML = ''; // Clear any existing cards
+            projectContainer.innerHTML = '';
 
             projects.forEach(project => {
                 const projectCard = document.createElement('div');
                 projectCard.classList.add('project-cards');
-                projectCard.setAttribute('data-project-id', project.id); 
+                projectCard.setAttribute('data-project-id', project.id);
+
+                projectCard.style.backgroundColor = project.color || '#ffffff'; 
 
                 projectCard.innerHTML = `
                     <div class="proj-cards">
                         <div class="card-headers">
                             <p class="project-date">${formatDate(project.start_date)}</p>
-                            <i class='bx bx-archive-in'></i>
+                            ${project.isOwner && project.status !== 'Archived' ? "<i class='bx bx-archive-in'></i>" : ""}
+                            ${project.isOwner && project.status == 'Archived' ? "<i class='bx bx-recycle unarchive-icon'></i>" : ""}
                         </div>
                         <div class="p-title">
                             <h3>${project.name || 'No Name Provided'}</h3>
@@ -557,10 +658,32 @@ if (isset($_SESSION['ad_name'])) {
                         </div>
                     </div>
                 `;
+
+                projectCard.addEventListener('click', () => {
+                    document.getElementById('project-name').textContent = project.name;
+                    document.getElementById('project-code').textContent = "ACCESS CODE: " + project.access_code; 
+                    document.querySelector('.proj-details').style.display = 'block'; 
+                });
                 projectContainer.appendChild(projectCard);
             });
         }
 
+        // Filter projects based on the selected status
+        function filterProjects() {
+            const selectedStatus = filterDropdown.value;
+
+            let filteredProjects = allProjects;
+
+            if (selectedStatus === 'Ongoing') {
+                filteredProjects = allProjects.filter(project => project.status === 'Ongoing');
+            } else if (selectedStatus === 'Completed') {
+                filteredProjects = allProjects.filter(project => project.status === 'Completed');
+            } else if (selectedStatus === 'Archived') {
+                filteredProjects = allProjects.filter(project => project.status === 'Archived');
+            }
+
+            renderProjects(filteredProjects);
+        }
 
         // Function to calculate the progress of the project
         function calculateProgress(daysLeft, finishDate) {
@@ -571,13 +694,14 @@ if (isset($_SESSION['ad_name'])) {
 
         fetchProjects();
     </script>
-    
 </section>
 
 
         <!-- TASKS & DOCUMENTS -->
         <div class="proj-details" style="display: none;">
             <a href="#project-container"><i class='bx bx-chevron-left'></i></a>
+            <span id="project-name"></span>
+            <span id="project-code"></span>
 
             <div class="tabs">
                 <span id="tasks-tab" class="tab">Tasks</span>
@@ -980,7 +1104,7 @@ if (isset($_SESSION['ad_name'])) {
                             <!-- Profile Form Section -->
                             <form>
                                 <label>Username<i class='bx bx-edit-alt'></i></label>
-                                <input type="text" value="Angel" class="input-field">
+                                <input type="text" value="<?php echo htmlspecialchars($username); ?>"" class="input-field">
                                 
                                 <label>Role</label>
                                 <input type="text" value="Team Leader" class="input-field" disabled>
@@ -1004,12 +1128,12 @@ if (isset($_SESSION['ad_name'])) {
                                 <div class="form-row">
                                     <div class="form-group">
                                         <p>First name</p>
-                                        <input type="text" value="Angel" class="f-input-field">
+                                        <input type="text" value="<?php echo htmlspecialchars($first_name); ?>" class="f-input-field">
                                     </div>
                                     <div class="form-group">
                                         <p>Last name</p>
                                         <div class="name">
-                                            <input type="text" value="Canete" class="l-input-field">
+                                            <input type="text" value="<?php echo htmlspecialchars($last_name); ?>" class="l-input-field">
                                         </div>
                                     </div>
                                 </div>
@@ -1020,7 +1144,7 @@ if (isset($_SESSION['ad_name'])) {
                                 <div class="s-em">
                                     <label>Email Address</label>
                                     <div class="email">
-                                        <p class="email-display">Your email is <strong>angelbaby@gmail.com</strong></p>
+                                        <p class="email-display">Your email is <strong><?php echo htmlspecialchars($email); ?></strong></p>
                                         <!-- <a href="#" class="change-link">Change</a> -->
                                     </div>
                                 </div>
