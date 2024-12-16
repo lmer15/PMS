@@ -15,8 +15,6 @@ if (isset($_SESSION['ad_name'])) {
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,7 +24,7 @@ if (isset($_SESSION['ad_name'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PMS</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="user.css?v=1.2">
+    <link rel="stylesheet" href="user.css?v=1.5">
 </head>
 
 <body>
@@ -85,6 +83,14 @@ if (isset($_SESSION['ad_name'])) {
                                 </span>
                                 <i class='bx bxs-cog' ></i>
                                 <span class="title">Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="signin.html">
+                                <span class="material-symbols-outlined">
+                                </span>
+                                <i class='bx bx-log-out' ></i>
+                                <span class="title">Logout</span>
                             </a>
                         </li>
                     </ul>
@@ -246,36 +252,6 @@ if (isset($_SESSION['ad_name'])) {
             <div class="user">
                 <span class="material-symbols-outlined"></span>
                 <div class="profile-pic1"></div>
-                <div class="dropdown">
-                    <div class="nam">
-                        <h4>Angel</h4>
-                        <p>angelbaby123@gmail.com</p>
-                    </div>
-                    <ul>
-                        <li>
-                            <span class="material-symbols-outlined"></span>
-                            <i class='bx bx-user'></i>
-                            My Profile
-                        </li>
-                        <li>
-                            <span class="material-symbols-outlined"></span>
-                            <i class='bx bx-cog' ></i>
-                            Account Settings
-                        </li>
-                        <li>
-                            <span class="material-symbols-outlined"></span>
-                            <i class='bx bx-devices' ></i>
-                            Device Management
-                        </li>
-                        <li>
-                            <a href="signin.html">
-                                <span class="material-symbols-outlined"></span>
-                                <i class='bx bx-log-out' ></i>
-                                Sign Out
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
             
             <!-- user end -->
@@ -289,120 +265,105 @@ if (isset($_SESSION['ad_name'])) {
             <main>
                 <!-- projectCard start -->
                 <div class="projectCard">
+                    <!-- HTML structure for the info boxes -->
                     <div class="info-boxes">
                         <div class="info-box">
-                            <span>Pending Projects</span>
-                            <p>0</p>
+                            <span>Ongoing Projects</span>
+                            <p id="in-progress-count">0</p>
                         </div>
                         <div class="info-box">
                             <span>Completed Projects</span>
-                            <p>0</p>
+                            <p id="completed-count">0</p>
                         </div>
                         <div class="info-box">
-                            <span>Pending Tasks</span>
-                            <p>0</p>
+                            <span>Archived Projects</span>
+                            <p id="archived-count">0</p>
                         </div>
                         <div class="info-box">
-                            <span>Completed Tasks</span>
-                            <p>0</p>
+                            <span>Total Projects</span>
+                            <p id="total-count">0</p>
                         </div>
                     </div>
+
+                    <script>
+                        // Fetch data from the PHP endpoint
+                        fetch('back_end/fetch_project_number.php') 
+                            .then(response => response.json())
+                            .then(data => {
+                                // Update the DOM elements with the fetched data
+                                document.getElementById('in-progress-count').textContent = data.inProgress;
+                                document.getElementById('completed-count').textContent = data.completed;
+                                document.getElementById('archived-count').textContent = data.archived;
+                                document.getElementById('total-count').textContent = data.total;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching project data:', error);
+                            });
+                    </script>
+
                 </div>
                 <!-- projectCard end -->
 
-                <!-- Container for Ongoing Projects -->
+              <!-- Container for Ongoing Projects -->
                 <div class="projects-container">
                     <div class="projects-header">
                         <h2>Ongoing Projects</h2>
                         <a href="#projects" class="all-projects-link">All Projects</a>
                     </div>
 
-                    <div class="projects-grid">
-                        <!-- Project Card 1 -->
-                        <div class="project-card white-bg">
-                            <div class="project-header">
-                                <span class="project-date">Oct. 7, 2024</span>
-                                <span class="project-menu">⋮</span>
-                            </div>
-                            <h3>Web Designing</h3>
-                            <p>Prototyping</p>
-                            <div class="project-progress-bar">
-                                <div class="progress blue"></div>
-                            </div>
-                            <div class="project-footer">
-                                <div class="team">
-                                    <img src="pics/SHREK.jpg" alt="team member">
-                                    <img src="pics/bob.jpg" alt="team member">
-                                    <span class="add-member">+</span>
-                                </div>
-                                <span class="days-left">2 Days Left</span>
-                            </div>
-                        </div>
-                    
-                        <!-- Project Card 2 -->
-                        <div class="project-card red-bg">
-                            <div class="project-header">
-                                <span class="project-date">Oct. 8, 2024</span>
-                                <span class="project-menu">⋮</span>
-                            </div>
-                            <h3>Mobile App</h3>
-                            <p>Shopping</p>
-                            <div class="project-progress-bar">
-                                <div class="progress red"></div>
-                            </div>
-                            <div class="project-footer">
-                                <div class="team">
-                                    <img src="pics/bob.jpg" alt="team member">
-                                    <img src="pics/1672369246156.jpg" alt="team member">
-                                    <span class="add-member">+</span>
-                                </div>
-                                <span class="days-left">2 Days Left</span>
-                            </div>
-                        </div>
-                    
-                        <!-- Project Card 3 -->
-                        <div class="project-card green-bg">
-                            <div class="project-header">
-                                <span class="project-date">Oct. 7, 2024</span>
-                                <span class="project-menu">⋮</span>
-                            </div>
-                            <h3>Web Designing</h3>
-                            <p>Prototyping</p>
-                            <div class="project-progress-bar">
-                                <div class="progress green"></div>
-                            </div>
-                            <div class="project-footer">
-                                <div class="team">
-                                    <img src="pics/SHREK.jpg" alt="team member">
-                                    <img src="pics/bob.jpg" alt="team member">
-                                    <span class="add-member">+</span>
-                                </div>
-                                <span class="days-left">2 Days Left</span>
-                            </div>
-                        </div>
-                    
-                        <!-- Project Card 4 -->
-                        <div class="project-card white-bg">
-                            <div class="project-header">
-                                <span class="project-date">Oct. 7, 2024</span>
-                                <span class="project-menu">⋮</span>
-                            </div>
-                            <h3>Web Designing</h3>
-                            <p>Prototyping</p>
-                            <div class="project-progress-bar">
-                                <div class="progress blue"></div>
-                            </div>
-                            <div class="project-footer">
-                                <div class="team">
-                                    <img src="pics/1672369246156.jpg" alt="team member">
-                                    <img src="pics/mona.jpg" alt="team member">
-                                    <span class="add-member">+</span>
-                                </div>
-                                <span class="days-left">2 Days Left</span>
-                            </div>
-                        </div>
+                    <div class="projects-grid" id="projects-grid">
+                        <!-- Project Cards will be dynamically added here -->
                     </div>
                 </div>
+
+                <!-- JavaScript to fetch and display the data -->
+                <script>
+                    fetch('back_end/ongoingProject.php') 
+                        .then(response => response.json())
+                        .then(data => {
+                            const projectsGrid = document.getElementById('projects-grid');
+                            data.forEach(project => {
+                                const projectCard = document.createElement('div');
+                                projectCard.classList.add('project-card', 'white-bg');
+
+                                // Calculate the difference between finish date and current date
+                                const finishDate = new Date(project.finish_date);
+                                const currentDate = new Date();
+                                const timeDiff = finishDate - currentDate;
+                                const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));  // Convert milliseconds to days
+
+                                // Create the project card content
+                                projectCard.innerHTML = `
+                                    <div class="project-header">
+                                        <span class="project-date">${project.start_date}</span>
+                                        <span class="project-menu">⋮</span>
+                                    </div>
+                                    <h3>${project.name}</h3>
+                                    <p>${project.description}</p>
+                                    <div class="project-progress-bar">
+                                        <div class="progress blue"></div> 
+                                    </div>
+                                    <div class="project-footer">
+                                        <div class="team">
+                                            <img src="pics/SHREK.jpg" alt="team member">
+                                            <img src="pics/bob.jpg" alt="team member">
+                                            <span class="add-member">+</span>
+                                        </div>
+                                        <span class="days-left">${daysLeft} Days Left</span> <!-- Dynamically calculated -->
+                                    </div>
+                                `;
+
+                                // Append the project card to the grid
+                                projectsGrid.appendChild(projectCard);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching project data:', error);
+                        });
+                </script>
+
+
+
                 <!-- projectCard2 end -->
 
                 <!-- myTasks start -->

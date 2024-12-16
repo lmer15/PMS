@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2024 at 12:51 AM
+-- Generation Time: Dec 09, 2024 at 06:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,7 +42,10 @@ CREATE TABLE `accountsdetails` (
 
 INSERT INTO `accountsdetails` (`ad_ID`, `ad_name`, `ad_username`, `ad_email`, `ad_password`, `plan_id`) VALUES
 (22, 'Elmer Rapon', 'lmer15', 'raponelmer15@gmail.com', '$2y$10$3Sh6sVCMhu6weIRn1fMG..9Hs6eNQHcyrSrzpsktDmk2cVdc5a2Oy', 1),
-(23, 'Jamaica Anuba', 'maica', 'jamaica@gmail.com', '$2y$10$GZYEo/Blb9p3a7zy1IZvDOKaF4F7tyYP8Er/vn8Rti5.rKgRa/HHG', 4);
+(23, 'Jamaica Anuba', 'maica', 'jamaica@gmail.com', '$2y$10$GZYEo/Blb9p3a7zy1IZvDOKaF4F7tyYP8Er/vn8Rti5.rKgRa/HHG', 4),
+(24, 'Bungi Ngi', 'ngi', 'ngi@gmail.com', '$2y$10$p5u3voFAVyDaB0D4klhhm.VCi1Q1gSEzFZE.BaidrQavsvkNc/84G', 4),
+(25, 'Aries Cabral', 'aries', 'cabralaries@gmail.com', '$2y$10$LrCytmSJx8sTFCrhFxS8XOC6fXDMFDERTAZF9Ty2KJzykpMX.AXwG', 4),
+(26, 'Lemon Juice', 'lemon', 'lemonjuice@gmail.com', '$2y$10$KPKQ7cejIHPO./HxwMYnLOGRoOdDDd5Sglcdp01aKJ4QQQL2Bqt02', 4);
 
 -- --------------------------------------------------------
 
@@ -109,6 +112,16 @@ CREATE TABLE `project_members` (
   `user_id` int(20) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'Active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_members`
+--
+
+INSERT INTO `project_members` (`membersID`, `project_id`, `user_id`, `status`) VALUES
+(6, 34, 23, 'active'),
+(7, 34, 24, 'active'),
+(8, 34, 25, 'active'),
+(9, 34, 26, 'active');
 
 -- --------------------------------------------------------
 
@@ -208,7 +221,7 @@ ALTER TABLE `subscription_plan`
 -- AUTO_INCREMENT for table `accountsdetails`
 --
 ALTER TABLE `accountsdetails`
-  MODIFY `ad_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `ad_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `payment`
@@ -226,7 +239,7 @@ ALTER TABLE `projects`
 -- AUTO_INCREMENT for table `project_members`
 --
 ALTER TABLE `project_members`
-  MODIFY `membersID` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `membersID` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `subscription`

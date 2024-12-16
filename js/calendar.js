@@ -594,18 +594,35 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-//MARK-COMPLETE IN TASK
-document.getElementById('mark-complete').addEventListener('click', function() {
-    // Toggle the 'completed' class
-    this.classList.toggle('completed');
+function toggleCheck(checkbox, taskId) {
+    const isChecked = checkbox.classList.contains('checked');
     
-    // Toggle the button text
-    if (this.classList.contains('completed')) {
-        this.innerHTML = "<i class='bx bx-check'></i>Completed"; 
+    // Toggle the checked class
+    if (isChecked) {
+        checkbox.classList.remove('checked');
+        updateTaskStatus(taskId, 'incomplete');  // Update the task's status in the backend
     } else {
-        this.innerHTML = "<i class='bx bx-check'></i>Mark Complete"; 
+        checkbox.classList.add('checked');
+        updateTaskStatus(taskId, 'completed');  // Update the task's status in the backend
     }
-});
+}
+
+// Function to update the task status in the database
+async function updateTaskStatus(taskId, status) {
+    try {
+        const response = await fetch('back_end/update_task_status.php', {
+            method: 'POST',
+            body: JSON.stringify({ task_id: taskId, status: status }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+        console.log('Task status updated:', result);
+    } catch (error) {
+        console.error('Error updating task status:', error);
+    }
+}
+
 
 
 //CHECK-CIRCLE FUNCTIONALITY
@@ -654,37 +671,26 @@ function moveTaskToRemaining(element) {
     const doneCount = document.getElementById('done-count');
     doneCount.textContent = parseInt(doneCount.textContent) - 1;
 }
+async function deleteTask(taskId) {
+    const confirmation = confirm('Are you sure you want to delete this task?');
 
-// Deleting a task
-document.addEventListener("DOMContentLoaded", function () {
-    const taskContainers = document.querySelectorAll('#tasks-container, #done-tasks-container');
+    if (confirmation) {
+        try {
+            const response = await fetch('back_end/delete_task.php', {
+                method: 'POST',
+                body: JSON.stringify({ task_id: taskId }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-    taskContainers.forEach(container => {
-        container.addEventListener("click", function (event) {
-            if (event.target.classList.contains("bx-trash-alt")) {
-                const taskToDelete = event.target.closest(".proj-task"); 
+            const result = await response.json();
+            console.log('Task deleted:', result);
+            renderTasks(currentProjectId); 
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
+    }
+}
 
-                if (taskToDelete) {
-                    const isTaskInDoneContainer = taskToDelete.closest('#done-tasks-container') !== null;
-                    const isTaskInRemainingContainer = taskToDelete.closest('#tasks-container') !== null;
-
-                    taskToDelete.remove();
-
-                    // Update counts based on where the task was deleted
-                    if (isTaskInDoneContainer) {
-                        const doneCount = document.getElementById('done-count');
-                        doneCount.textContent = parseInt(doneCount.textContent) - 1;
-                    }
-
-                    if (isTaskInRemainingContainer) {
-                        const remainingCount = document.getElementById('remaining-count');
-                        remainingCount.textContent = parseInt(remainingCount.textContent) - 1;
-                    }
-                }
-            }
-        });
-    });
-});
 
 
 
